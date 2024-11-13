@@ -1,18 +1,33 @@
 import React, { useState } from "react";
 import { TextField, Button, Typography, Box } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function RoomJoinPage() {
     const [roomCode, setRoomCode] = useState("");
-    const [error, setError] = useState(false);
+    const [error, setError] = useState("");
+    const navigate = useNavigate()
 
-    function handleJoinRoom() {
-        if (roomCode.trim() === "") {
-            setError("Please enter a room code.");
-        } else {
-            console.log("Room code:", roomCode);
-            setError(false);
+
+    async function handleRoomButtonPressed() {
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                code: roomCode
+            })
+        };
+        try {
+            const response = await fetch('/api/join-room', requestOptions)
+            if (response.ok) {
+                navigate(`/room/${roomCode}`)    
+            }
+            else {
+                setError('Room not found.')
+            }
+        } catch(error) {
+            console.log(error)
         }
+ 
     }
 
     return (
@@ -49,7 +64,7 @@ function RoomJoinPage() {
             <Button
                 variant="contained"
                 color="primary"
-                onClick={handleJoinRoom}
+                onClick={handleRoomButtonPressed}
                 fullWidth
             >
                 Join Room
