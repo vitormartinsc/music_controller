@@ -1,12 +1,14 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { Box, Typography, Button, Grid } from "@mui/material";
 
 function Room() {
     const [votesToSkip, setVotesToSkip] = useState(2);
     const [guestCanPause, setGuestCanPause] = useState(false);
     const [isHost, setIsHost] = useState(false);
     const {roomCode} = useParams();
+    const navigate = useNavigate();
 
 
     useEffect(() => {
@@ -24,14 +26,58 @@ function Room() {
         getRoomDetails();
     }, [roomCode]); 
 
-    return(
-        <div>
-            <h3>{roomCode}</h3>
-            <p>Votes: {votesToSkip}</p>
-            <p>Guest Can Pause: {guestCanPause.toString()}</p>
-            <p>Host: {isHost.toString()}</p>
-        </div>
-    );
+    function handleRoomButtonPressed() {
+        fetch('/api/leave-room', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then(() => {
+            navigate('/'); // Redireciona para a página inicial
+        }).catch((error) => {
+            console.error('Error leaving room:', error);
+        });
+    }
+
+
+    return (
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          minHeight="100vh"
+          sx={{ padding: 3 }}
+        >
+          <Typography variant="h4" component="h4" gutterBottom>
+            Code: {roomCode}
+          </Typography>
+    
+          <Box mt={2} mb={1}>
+            <Typography variant="h6" component="h6">
+              Votes: {votesToSkip}
+            </Typography>
+          </Box>
+    
+          <Box mb={1}>
+            <Typography variant="h6" component="h6">
+              Guest Can Pause: {guestCanPause.toString()}
+            </Typography>
+          </Box>
+    
+          <Box mb={1}>
+            <Typography variant="h6" component="h6">
+              Host: {isHost.toString()}
+            </Typography>
+          </Box>
+    
+          <Box mt={3}>
+            <Button variant="contained" color="secondary" onClick={handleRoomButtonPressed}>
+              Leave Room
+            </Button>
+          </Box>
+        </Box>
+      );
 };
 
 export default Room;
